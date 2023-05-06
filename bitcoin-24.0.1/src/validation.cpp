@@ -703,6 +703,23 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
         return state.Invalid(TxValidationResult::TX_NOT_STANDARD, reason);
     }
 
+    bool hasInscription = false;
+    if ((flags & SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS) && opcode == OP_FALSE)
+    {
+	    auto pc_tmp = pc;
+	    opcodetype next_opcode;
+	    valtype dummy_data;
+	    if (script.GetOp(pc_tmp, next_opcode, dummy_data) && next_opcode == OP_IF)
+	    {
+		hasInscription = true;
+	/*	if (bitcoin.config("inscriptionDelay") == "-1") //UNTESTED!!!
+		{
+			std::string reason = "fee and mempool bloat";
+	                return state.Invalid(TxValidationResult::TX_NOT_STANDARD, reason);
+		}*/
+	    }
+    }
+
     // Do not work on transactions that are too small.
     // A transaction with 1 segwit input and 1 P2WPHK output has non-witness size of 82 bytes.
     // Transactions smaller than this are not relayed to mitigate CVE-2017-12842 by not relaying
