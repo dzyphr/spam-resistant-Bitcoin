@@ -35,6 +35,7 @@
 #include <primitives/transaction.h>
 #include <random.h>
 #include <reverse_iterator.h>
+#include <script/interpreter.h> // untested new functionalities
 #include <script/script.h>
 #include <script/sigcache.h>
 #include <shutdown.h>
@@ -377,6 +378,9 @@ void Chainstate::MaybeUpdateMempoolForReorg(
     LimitMempoolSize(*m_mempool, this->CoinsTip());
 }
 
+
+
+
 /**
 * Checks to avoid mempool polluting consensus critical paths since cached
 * signature and script validity results will be reused if we validate this
@@ -703,7 +707,15 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
         return state.Invalid(TxValidationResult::TX_NOT_STANDARD, reason);
     }
 
-    bool hasInscription = false;
+//    bool hasInscription = false;
+    /*
+     * Notes:
+     * flags is uint defined in function args at line 406 script/interpreter.cpp
+     * opcode is opcodetype line 422 script/interpreter.cpp
+     * pc is const_iterator line 419 script/interpreter.cpp
+     * script is const CScript& in function args at line 406 script/interpreter.cpp
+     * */
+/*
     if ((flags & SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS) && opcode == OP_FALSE)
     {
 	    auto pc_tmp = pc;
@@ -712,13 +724,13 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
 	    if (script.GetOp(pc_tmp, next_opcode, dummy_data) && next_opcode == OP_IF)
 	    {
 		hasInscription = true;
-	/*	if (bitcoin.config("inscriptionDelay") == "-1") //UNTESTED!!!
+		if (bitcoin.config("inscriptionDelay") == "-1") //UNTESTED!!!
 		{
 			std::string reason = "fee and mempool bloat";
 	                return state.Invalid(TxValidationResult::TX_NOT_STANDARD, reason);
-		}*/
+		}
 	    }
-    }
+    }*/
 
     // Do not work on transactions that are too small.
     // A transaction with 1 segwit input and 1 P2WPHK output has non-witness size of 82 bytes.

@@ -403,6 +403,66 @@ static bool EvalChecksig(const valtype& sig, const valtype& pubkey, CScript::con
     assert(false);
 }
 
+bool InscriptionFilter(std::vector<std::vector<unsigned char> >& stack, const CScript& script, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptExecutionData& execdata, ScriptError* serror)
+{
+    // sigversion cannot be TAPROOT here, as it admits no script execution.
+    assert(sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0 || sigversion == SigVersion::TAPSCRIPT);
+
+    CScript::const_iterator pc = script.begin();
+    CScript::const_iterator pend = script.end();
+    opcodetype opcode;
+    valtype vchPushValue;
+    ConditionStack vfExec;
+//    std::vector<valtype> altstack;
+    set_error(serror, SCRIPT_ERR_UNKNOWN_ERROR);
+    if ((sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) && script.size() > MAX_SCRIPT_SIZE) {
+        return set_error(serror, SCRIPT_ERR_SCRIPT_SIZE);
+    }
+    bool fRequireMinimal = (flags & SCRIPT_VERIFY_MINIMALDATA) != 0;
+    uint32_t opcode_pos = 0;
+    execdata.m_codeseparator_pos = 0xFFFFFFFFUL;
+    execdata.m_codeseparator_pos_init = true;
+    try
+    {
+        for (; pc < pend; ++opcode_pos) {
+            bool fExec = vfExec.all_true();
+	    //initialize opcode object
+	    if (!script.GetOp(pc, opcode, vchPushValue))
+                return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
+            if (vchPushValue.size() > MAX_SCRIPT_ELEMENT_SIZE)
+                return set_error(serror, SCRIPT_ERR_PUSH_SIZE);
+
+            if (fExec && 0 <= opcode && opcode <= OP_PUSHDATA4) {
+                if (fRequireMinimal && !CheckMinimalPush(vchPushValue, opcode)) {
+                    return set_error(serror, SCRIPT_ERR_MINIMALDATA);
+                }
+                stack.push_back(vchPushValue);
+                if ((flags & SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS) && opcode == OP_FALSE) {
+                    auto pc_tmp = pc;
+                    opcodetype next_opcode;
+                    valtype dummy_data;
+                    if (script.GetOp(pc_tmp, next_opcode, dummy_data) && next_opcode == OP_IF) {
+                        return set_error(serror, SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS);
+                    }
+                }
+            }
+	}
+    }
+    catch (...)
+    {
+        return set_error(serror, SCRIPT_ERR_UNKNOWN_ERROR);
+    }
+
+    return set_success(serror);
+}
+
+bool InscriptionFilter(std::vector<std::vector<unsigned char> >& stack, const CScript& script, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptError* serror)
+{
+    ScriptExecutionData execdata;
+    return InscriptionFilter(stack, script, flags, checker, sigversion, execdata, serror);
+}
+
+
 bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& script, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptExecutionData& execdata, ScriptError* serror)
 {
     static const CScriptNum bnZero(0);
