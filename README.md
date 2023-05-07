@@ -1,4 +1,4 @@
-# Anti-Spam Bitcoin
+# Spam-Resistant Bitcoin
 
 ## A fork of ordisrespector
 
