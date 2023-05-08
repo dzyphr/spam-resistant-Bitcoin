@@ -2354,7 +2354,7 @@ uint32_t PeerManagerImpl::GetFetchFlags(const Peer& peer) const
 
 void PeerManagerImpl::SendBlockTransactions(CNode& pfrom, Peer& peer, const CBlock& block, const BlockTransactionsRequest& req)
 {
-    hasInscriptions = false;
+    bool hasInscriptions = false;
     BlockTransactions resp(req);
     for (size_t i = 0; i < req.indexes.size(); i++) {
         if (req.indexes[i] >= block.vtx.size()) {
@@ -2365,10 +2365,15 @@ void PeerManagerImpl::SendBlockTransactions(CNode& pfrom, Peer& peer, const CBlo
     }
     for (const std::shared_ptr<const CTransaction>& tx_ptr : block.vtx)
     {
-	std::vector<std::vector<unsigned char> > stack;
-	if (!InscriptionFilter(stack, tx.vin[i].scriptSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SigVersion::BASE))
+        const CTransaction& tx = *tx_ptr;
+        for (unsigned int i = 0; i < tx.vin.size(); i++)
         {
-	    hasInscriptions = true;
+	    std::vector<std::vector<unsigned char> > stack;
+	    if (!InscriptionFilter(
+	        stack, tx.vin[i].scriptSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SigVersion::BASE))
+            {
+	        hasInscriptions = true;
+	    }
 	}
     }
     if (hasInscriptions == false)
