@@ -2335,7 +2335,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
 		    }
 		    else
 		    {
-			    sleep(1000 * InscriptionFilterTuning);//TODO win compatibility uppercase S in sleep
+//			    sleep(1000 * InscriptionFilterTuning);//TODO win compatibility uppercase S in sleep
 		    }
 
 		}
