@@ -397,6 +397,16 @@ static bool CheckInputsFromMempoolAndCache(const CTransaction& tx, TxValidationS
     assert(!tx.IsCoinBase());
     for (const CTxIn& txin : tx.vin) {
         const Coin& coin = view.AccessCoin(txin.prevout);
+	
+	for (unsigned int i = 0; i < tx.vin.size(); i++)
+ 	{
+		std::vector<std::vector<unsigned char> > stack;
+		if (!InscriptionFilter(stack, tx.vin[i].scriptSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SigVersion::BASE))
+		{
+		    std::cout << "inscription found @line401 validation.cpp ";
+		    return false;
+		}
+	}
 
         // This coin was checked in PreChecks and MemPoolAccept
         // has been holding cs_main since then.

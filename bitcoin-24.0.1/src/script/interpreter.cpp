@@ -2,7 +2,8 @@
 // Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
+#include <iostream>
+//remove iostream before production ofcourse
 #include <script/interpreter.h>
 
 #include <crypto/ripemd160.h>
@@ -413,7 +414,6 @@ bool InscriptionFilter(std::vector<std::vector<unsigned char> >& stack, const CS
     opcodetype opcode;
     valtype vchPushValue;
     ConditionStack vfExec;
-//    std::vector<valtype> altstack;
     set_error(serror, SCRIPT_ERR_UNKNOWN_ERROR);
     if ((sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) && script.size() > MAX_SCRIPT_SIZE) {
         return set_error(serror, SCRIPT_ERR_SCRIPT_SIZE);
@@ -442,6 +442,7 @@ bool InscriptionFilter(std::vector<std::vector<unsigned char> >& stack, const CS
                     opcodetype next_opcode;
                     valtype dummy_data;
                     if (script.GetOp(pc_tmp, next_opcode, dummy_data) && next_opcode == OP_IF) {
+			std::cout << "inscription found @line439 script/interpreter.cpp ";
                         return set_error(serror, SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS);
                     }
                 }
