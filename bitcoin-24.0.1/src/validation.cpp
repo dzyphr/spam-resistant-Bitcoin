@@ -2018,7 +2018,7 @@ uint64_t spamBlocksWithheld = 0;
 bool InscriptionSpamBlockPropagationDelay = true;
 bool negativeOne = false; //placeholder for config
 std::vector<CBlock> withheldBlockVec;
-uint64_t InscriptionFilterTuning = 40;
+uint64_t InscriptionFilterTuning = 9;
 
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
