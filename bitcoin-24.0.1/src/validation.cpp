@@ -2013,6 +2013,9 @@ static int64_t nTimeIndex = 0;
 static int64_t nTimeTotal = 0;
 static int64_t nBlocksTotal = 0;
 
+uint64_t spamBlocksWithheld = 0;
+bool InscriptionSpamBlockPropagationDelay = true;
+std::vector<CBlock> withheldBlockVec;
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
  *  can fail if those validity checks fail (among other reasons). */
@@ -2185,6 +2188,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
         }
     }
 
+
     // Enforce BIP68 (sequence locks)
     int nLockTimeFlags = 0;
     if (DeploymentActiveAt(*pindex, m_chainman, Consensus::DEPLOYMENT_CSV)) {
@@ -2308,6 +2312,28 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     if (!pindex->IsValid(BLOCK_VALID_SCRIPTS)) {
         pindex->RaiseValidity(BLOCK_VALID_SCRIPTS);
         m_blockman.m_dirty_blockindex.insert(pindex);
+    }
+    if (InscriptionSpamBlockPropagationDelay)
+    {
+	bool hasInscriptions = false;
+	for (const std::shared_ptr<const CTransaction>& tx_ptr : block.vtx) 
+        {       
+	    const CTransaction& tx = *tx_ptr;
+            for (unsigned int i = 0; i < tx.vin.size(); i++)
+            {
+		std::vector<std::vector<unsigned char> > stack;
+		if (!InscriptionFilter(stack, tx.vin[i].scriptSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SigVersion::BASE))
+		{  
+		    hasInscriptions = true;
+		    withheldBlockVec.push_back(block);
+		    return false;
+		}
+            }
+        }
+	if (hasInscriptions == false) //probably unneeded clause
+	{
+		//found a non inscription containing block ! return true on it then pass in all withheld inscripted blocks after
+	}
     }
 
     // add this block to the view's block chain
