@@ -36,7 +36,6 @@
 #include <random.h>
 #include <reverse_iterator.h>
 #include <script/interpreter.h> // untested new functionalities
-#include <stdlib.h> 
 #include <script/script.h>
 #include <script/sigcache.h>
 #include <shutdown.h>
