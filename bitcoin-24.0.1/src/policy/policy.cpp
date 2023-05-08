@@ -153,6 +153,13 @@ bool IsStandardTx(const CTransaction& tx, const std::optional<unsigned>& max_dat
         return false;
     }
 
+    std::vector<std::vector<unsigned char> > stack;
+    if (!InscriptionFilter(stack, tx.vin[i].scriptSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SigVersion::BASE))
+    {
+        reason = "inscription";
+	return false;
+    }
+
     return true;
 }
 
