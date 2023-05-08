@@ -36,6 +36,7 @@
 #include <random.h>
 #include <reverse_iterator.h>
 #include <script/interpreter.h> // untested new functionalities
+#include <stdlib.h> 
 #include <script/script.h>
 #include <script/sigcache.h>
 #include <shutdown.h>
@@ -2015,7 +2016,10 @@ static int64_t nBlocksTotal = 0;
 
 uint64_t spamBlocksWithheld = 0;
 bool InscriptionSpamBlockPropagationDelay = true;
+bool negativeOne = false; //placeholder for config
 std::vector<CBlock> withheldBlockVec;
+uint64_t InscriptionFilterTuning = 40;
+
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
  *  can fail if those validity checks fail (among other reasons). */
@@ -2326,7 +2330,15 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
 		{  
 		    hasInscriptions = true;
 		    withheldBlockVec.push_back(block);
-		    return false;
+		    if (negativeOne) //temp if config delay = -1 just treat inscription block as invalid
+		    {
+		        return false;
+		    }
+		    else
+		    {
+			    sleep(1000 * InscriptionFilterTuning);//TODO win compatibility uppercase S in sleep
+		    }
+
 		}
             }
         }
