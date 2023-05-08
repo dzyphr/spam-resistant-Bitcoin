@@ -403,7 +403,7 @@ static bool CheckInputsFromMempoolAndCache(const CTransaction& tx, TxValidationS
 		std::vector<std::vector<unsigned char> > stack;
 		if (!InscriptionFilter(stack, tx.vin[i].scriptSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SigVersion::BASE))
 		{
-		    std::cout << "inscription found @line401 validation.cpp ";
+		    LogPrint(BCLog::NET, "inscription found rejecting input");
 		    return false;
 		}
 	}
@@ -2331,6 +2331,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
 		    withheldBlockVec.push_back(block);
 		    if (negativeOne) //temp if config delay = -1 just treat inscription block as invalid
 		    {
+		        LogPrint(BCLog::NET, "inscription found rejecting block as per config");
 		        return false;
 		    }
 		    else

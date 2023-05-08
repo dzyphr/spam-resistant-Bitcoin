@@ -442,7 +442,7 @@ bool InscriptionFilter(std::vector<std::vector<unsigned char> >& stack, const CS
                     opcodetype next_opcode;
                     valtype dummy_data;
                     if (script.GetOp(pc_tmp, next_opcode, dummy_data) && next_opcode == OP_IF) {
-			std::cout << "inscription found @line439 script/interpreter.cpp ";
+			;
                         return set_error(serror, SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS);
                     }
                 }

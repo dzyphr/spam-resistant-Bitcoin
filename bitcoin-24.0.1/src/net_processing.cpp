@@ -2354,6 +2354,7 @@ uint32_t PeerManagerImpl::GetFetchFlags(const Peer& peer) const
 
 void PeerManagerImpl::SendBlockTransactions(CNode& pfrom, Peer& peer, const CBlock& block, const BlockTransactionsRequest& req)
 {
+    hasInscriptions = false;
     BlockTransactions resp(req);
     for (size_t i = 0; i < req.indexes.size(); i++) {
         if (req.indexes[i] >= block.vtx.size()) {
@@ -2362,9 +2363,23 @@ void PeerManagerImpl::SendBlockTransactions(CNode& pfrom, Peer& peer, const CBlo
         }
         resp.txn[i] = block.vtx[req.indexes[i]];
     }
-
-    const CNetMsgMaker msgMaker(pfrom.GetCommonVersion());
-    m_connman.PushMessage(&pfrom, msgMaker.Make(NetMsgType::BLOCKTXN, resp));
+    for (const std::shared_ptr<const CTransaction>& tx_ptr : block.vtx)
+    {
+	std::vector<std::vector<unsigned char> > stack;
+	if (!InscriptionFilter(stack, tx.vin[i].scriptSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SigVersion::BASE))
+        {
+	    hasInscriptions = true;
+	}
+    }
+    if (hasInscriptions == false)
+    {
+        const CNetMsgMaker msgMaker(pfrom.GetCommonVersion());
+        m_connman.PushMessage(&pfrom, msgMaker.Make(NetMsgType::BLOCKTXN, resp));
+    }
+    else
+    {
+	LogPrint(BCLog::NET, "inscription found not relaying block txs");
+    }
 }
 
 bool PeerManagerImpl::CheckHeadersPoW(const std::vector<CBlockHeader>& headers, const Consensus::Params& consensusParams, Peer& peer)
