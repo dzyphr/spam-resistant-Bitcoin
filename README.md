@@ -12,4 +12,6 @@ However if you want to contribute please do!
 
 ####  Changes Made to Ordisrespector:
 
-Created smaller function to check for inscriptions that behaves like EvalScript
+Created smaller function to check for inscriptions that behaves like EvalScript (called InscriptionFilter)
+
+Implemented check for InscriptionFilter at SendBlockTransactions, avoids relaying inscribed block transactions (i think)
