@@ -7,8 +7,9 @@
 ####  Use that link to build basic ordisrespector,
 ####  once its built with the basic patch you can clone in this repo's version of core and rebuild
 
-Note currently theres no reason to do so as I have not implemented any active changes
-However if you want to contribute please do!
+Note: This is an EXPERIMENT all added features are EXPERIMENTAL and are only theoretically capable of mitigating inscription spam
+
+If you want to contribute please do!
 
 ####  Changes Made to Ordisrespector:
 
